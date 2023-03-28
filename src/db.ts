@@ -3,8 +3,8 @@ import mysql, { Connection } from 'mysql2'
 interface IDbConfig {
   port: number
   db: string
-  host: string
   user: string
+  host: string
   password: string
 }
 

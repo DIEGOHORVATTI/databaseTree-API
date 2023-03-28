@@ -59,6 +59,26 @@ app.get('/', async (req, res) => {
   }
 })
 
+app.get('/createDatabase', async (req, res) => {
+  const dbConfig: IDbConfig = {
+    db: 'IFC',
+    port: 3306,
+    user: 'root',
+    host: 'localhost',
+    password: '20020000'
+  }
+  const dbConnection = new DbConnection(dbConfig)
+
+  try {
+    await dbConnection.connect()
+    dbConnection.connect()
+    res.status(500).send('Database created successfully!')
+  } catch (error) {
+    console.error('Error creating database: ', error)
+    res.status(500).send('Error creating database')
+  }
+})
+
 console.clear()
 console.log('Server is running on port 3000')
 app.listen(3000)
