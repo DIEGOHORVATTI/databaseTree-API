@@ -5,9 +5,8 @@
 #include <mysql/mysql.h>
 #include "./conn.c"
 
-int Conn() {
-  MYSQL* CONN = conn();
-
+void createDatabaseOtptimization(CONN)
+{
   mysql_query(CONN, "create table if not exists dias_produtivos( \
                 id_dia int auto_increment not null, \
                 dia date not null unique, \
@@ -69,30 +68,49 @@ int Conn() {
       foreign key(id_turno) references turno(id_turno), \
       foreign key(id_pedido) references pedidos(id_pedido) \
     );");
+}
 
-  mysql_query(CONN, "delimiter $$ \
-              create function fnSomaPesoPedido(p integer) returns float deterministic \
-              begin \
-              declare soma float; \
-  (select sum(producao.peso_produzido) into soma from producao inner join pedidos on producao.id_pedido = pedidos.id_pedido where pedidos.pedido = p);
-              return soma; \
-              end \
-              $$ delimiter;");
+void createDatabaseSimple(CONN)
+{
+  mysql_query(CONN, "CREATE TABLE IF NOT EXISTS unified_data ( \
+                    id INT AUTO_INCREMENT NOT NULL, \
+                    dia DATE, \
+                    id_turno INT, \
+                    id_dia INT, \
+                    id_condutor INT, \
+                    turma ENUM('A', 'B', 'C', 'D'), \
+                    inicio_turno TIME, \
+                    final_turno TIME, \
+                    obs_turno VARCHAR(256), \
+                    nome_condutor VARCHAR(30), \
+                    id_pedido INT, \
+                    codcli INT, \
+                    pedido INT, \
+                    data_entrada DATE, \
+                    tipo_papel ENUM('Branco', 'Pardo'), \
+                    aba INT, \
+                    espessura FLOAT, \
+                    comprimento INT, \
+                    quantidade INT, \
+                    status ENUM('Programado', 'Produzido', 'Em produção', 'Carregado'), \
+                    obs_pedido VARCHAR(256), \
+                    nomecli VARCHAR(30), \
+                    id_producao INT, \
+                    hora_inicio TIME, \
+                    hora_fim TIME, \
+                    velocidade_maq INT, \
+                    peso_produzido FLOAT, \
+                    qtd_produzida INT, \
+                    item_completo BOOLEAN, \
+                    obs_producao VARCHAR(256) \
+                );");
+}
 
-              mysql_query(CONN, "delimiter $$ \
-                          create function fnBuscaDiaProducao(t integer) returns date deterministic \
-                          begin \
-                          declare dia date; \
-  (select dias_produtivos.dia into dia from dias_produtivos inner join turno on dias_produtivos.id_dia = turno.id_dia where turno.id_turno = t); \
-  return dia; \
-  end \
-    $$ delimiter;");
+int Conn() {
+  MYSQL* CONN = conn();
 
-  mysql_query(CONN, "create or replace view produzidos as select producao.id_producao as id, pedidos.pedido as pedido, pedidos.data_entrada, fnBuscaDiaProducao(turno.id_turno) as data_producao, producao.peso_produzido, producao.qtd_produzida as peças, fnSomaPesoPedido(pedidos.pedido) as peso_pedido, fnContagemPaletesPedido(pedidos.pedido) as paletes_pedido, producao.obs \
-              from((producao inner join pedidos on producao.id_pedido = pedidos.id_pedido) inner join turno on producao.id_turno = turno.id_turno) \
-              where(pedidos.status = 'Produzido' or pedidos.status = 'Em produção') and producao.id_turno in \
-  (select turno.id_turno from turno inner join dias_produtivos on turno.id_dia = dias_produtivos.id_dia where dias_produtivos.id_dia in \
-  (select id_dia from dias_produtivos where dia between(subdate(curdate(), interval 1 month)) and curdate())) order by producao.id_producao desc;");
+  createDatabaseSimple(CONN);
+  createDatabaseOtptimization(CONN);
 
   mysql_close(CONN);
   return 0;
