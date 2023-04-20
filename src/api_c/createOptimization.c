@@ -33,4 +33,6 @@ int otimizar() {
     (select turno.id_turno from turno inner join dias_produtivos on turno.id_dia = dias_produtivos.id_dia where dias_produtivos.id_dia in \
     (select id_dia from dias_produtivos where dia between(subdate(curdate(), interval 1 month)) and curdate())) order by producao.id_producao desc;");
 
+  mysql_close(CONN);
+  return 0;
 }
