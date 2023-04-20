@@ -125,7 +125,6 @@ int main() {
     }
 
     // Inserir dados randômicos na tabela turno
-
     for (int i = 0; i < MAX_rand; i++) {
         int id_dia = get_random_dia_id(conn);
         int id_condutor = get_random_condutor_id(conn);
@@ -146,9 +145,6 @@ int main() {
             return 1;
         }
     }
-
-    printf("Inserção de %d turnos aleatórios concluída\n", num_turnos);
-
 
     // Inserir dados randômicos na tabela pedidos
     for (int i = 0; i < MAX_rand; i++) {
@@ -173,7 +169,42 @@ int main() {
             exit(1);
         }
     }
+
+    // Inserir dados randômicos na tabela unificada
+    for (int i = 0; i < MAX_rand; i++) {
+        char query[1024];
+        char inicio_turno[6];
+        generate_random_time(inicio_turno);
+
+        char final_turno[6];
+        generate_random_time(final_turno);
+
+        const char* status[] = { "Programado", "Produzido", "Em produção", "Carregado" };
+        const char* tipo_papel[] = { "Branco", "Pardo" };
+
+        snprintf(query, sizeof(query), "INSERT INTO tabela_unificada (nome_condutor, nomecli, dia, turma, inicio_turno, final_turno, codcli, pedido, data_entrada, tipo_papel, aba, espessura, comprimento, quantidade, status_producao, hora_inicio, hora_fim, velocidade_maq, peso_produzido, qtd_produzida, item_completo) VALUES ('Condutor %d', 'Cliente %d', '%s', '%c', '%s', '%s', %d, %d, '%s', '%s', %d, %.2f, %d, %d, '%s', '%s', '%s', %d, %.2f, %d, %d);", rand() % 1000, rand() % 1000, random_date(), "ABCD"[rand() % 4], inicio_turno, final_turno, rand() % MAX_rand + 1, rand() % 1000 + 1, random_date(), tipo_papel[rand() % 2], rand() % 50 + 1, (rand() % 100 + 1) * 0.01, rand() % 500 + 1, rand() % 1000 + 1, status[rand() % 4], inicio_turno, final_turno, rand() % 100 + 1, (rand() % 100 + 1) * 0.01, rand() % 1000 + 1, rand() % 2);
+
+        if (mysql_query(CONN, query) != 0) {
+            fprintf(stderr, "Erro ao inserir os dados na tabela unificada: %s\n", mysql_error(CONN));
+            mysql_close(CONN);
+            exit(1);
+        }
+    }
+
     printf("Sucesso na inserção de dados.\n");
     mysql_close(CONN);
     return 0;
+}
+
+
+
+
+
+
+
+
+
+printf("Sucesso na inserção de dados.\n");
+mysql_close(CONN);
+return 0;
 }
