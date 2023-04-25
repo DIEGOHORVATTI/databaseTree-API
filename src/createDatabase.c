@@ -5,14 +5,14 @@
 #include <mysql/mysql.h>
 #include "./conn.c"
 
-void createDatabaseOtptimization(CONN)
+void createDatabaseOtptimization(MYSQL* conn)
 {
-  mysql_query(CONN, "create table if not exists dias_produtivos( \
+  mysql_query(conn, "create table if not exists dias_produtivos( \
                 id_dia int auto_increment not null, \
                 dia date not null unique, \
                 primary key(id_dia));");
 
-  mysql_query(CONN, "create table if not exists turno( \
+  mysql_query(conn, "create table if not exists turno( \
                 id_turno int auto_increment not null, \
                 id_dia int not null, \
                 id_condutor int not null, \
@@ -25,13 +25,13 @@ void createDatabaseOtptimization(CONN)
                 foreign key(id_condutor) references condutores(id_condutor) \
                 );");
 
-  mysql_query(CONN, "create table if not exists condutores( \
+  mysql_query(conn, "create table if not exists condutores( \
                 id_condutor int auto_increment not null, \
                 nome_condutor varchar(30) not null, \
                 primary key(id_condutor) \
                 );");
 
-  mysql_query(CONN, "create table if not exists pedidos( \
+  mysql_query(conn, "create table if not exists pedidos( \
                 id_pedido int auto_increment not null, \
                 codcli int, \
                 pedido int not null, \
@@ -47,13 +47,13 @@ void createDatabaseOtptimization(CONN)
                 foreign key(codcli) references clientes(codcli) \
     );");
 
-  mysql_query(CONN, "create table if not exists clientes( \
+  mysql_query(conn, "create table if not exists clientes( \
                 codcli int auto_increment not null, \
                 nomecli varchar(30) not null, \
                 primary key(codcli) \
     );");
 
-  mysql_query(CONN, "create table if not exists producao( \
+  mysql_query(conn, "create table if not exists producao( \
       id_producao int auto_increment not null, \
       id_turno int not null, \
       id_pedido int not null, \
@@ -70,9 +70,9 @@ void createDatabaseOtptimization(CONN)
     );");
 }
 
-void createDatabaseSimple(CONN)
+void createDatabaseSimple(MYSQL* conn)
 {
-  mysql_query(CONN, "CREATE TABLE IF NOT EXISTS unified_data ( \
+  mysql_query(conn, "CREATE TABLE IF NOT EXISTS unified_data ( \
                     id INT AUTO_INCREMENT NOT NULL, \
                     dia DATE, \
                     id_turno INT, \
