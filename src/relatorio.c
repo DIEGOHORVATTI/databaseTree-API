@@ -27,18 +27,24 @@ void createDatabaseElementArray(double* value, int size, char* element, json_obj
 
 int main() {
   double results[MAX_TEST_LENGTH];
+  double results_unified[MAX_TEST_LENGTH];
+
   for (int i = 0; i < MAX_TEST_LENGTH; i++) {
     results[i] = get_query_time();
+    results_unified[i] = get_query_time_unified_table();
   }
 
-  double sum = 0;
+  double sum = 0, sum_unified = 0;
   for (int i = 0; i < MAX_TEST_LENGTH; i++) {
     sum += results[i];
+    sum_unified += results_unified[i];
   }
 
   double average = sum / MAX_TEST_LENGTH;
+  double average_unified = sum_unified / MAX_TEST_LENGTH;
 
   json_object* json;
+
   FILE* fp;
   fp = fopen(pathFileJson, "r+");
   if (fp == NULL) {
@@ -64,6 +70,9 @@ int main() {
   createDatabaseElementString(average, "resultFinal", json);
   createDatabaseElementArray(results, MAX_TEST_LENGTH, "resultFinalArray", json);
 
+  createDatabaseElementString(average_unified, "resultFinalUnified", json);
+  createDatabaseElementArray(results_unified, MAX_TEST_LENGTH, "resultFinalUnifiedArray", json);
+
   fp = fopen(pathFileJson, "w");
   if (fp == NULL) {
     printf("Não foi possível abrir o arquivo JSON.\n");
@@ -71,8 +80,8 @@ int main() {
   }
 
   fprintf(fp, "%s", json_object_to_json_string(json));
-  printf("json atualizado: %.2fms\n", average);
-
+  printf("json atualizado - tabela original: %.2fms\n", average);
+  printf("json atualizado - tabela unificada: %.2fms\n", average_unified);
 
   fclose(fp);
   json_object_put(json);
